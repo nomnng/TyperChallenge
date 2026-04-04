@@ -51,6 +51,11 @@ function TypeArea(props: TypeAreaProps) {
 				className="absolute inset-0 w-full h-full opacity-0 resize-none z-10"
 				onChange={onTextAreaChange}
 				value={textAreaContent}
+				onMouseDown={(event) => {
+					if (document.activeElement === event.target) {
+						event.preventDefault();
+					}
+				}}
 			/>
 
 			<span className="whitespace-pre-wrap text-zinc-200">{typedText}</span>
