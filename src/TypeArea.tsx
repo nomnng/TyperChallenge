@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface TypeAreaProps {
 	text: string;
 };
 
-function TypeArea(props: TypeAreaProps) {
+function TypeArea({text}: TypeAreaProps) {
 	const [textAreaContent, setTextAreaContent] = useState("");
 	const [pos, setPos] = useState(0);
 
-	const {text} = props;
+	useEffect(() => {
+		setPos(0);
+	}, [text]);
 
 	const typedText = text.substr(0, pos);
 	const remainingText = text.substr(pos);
