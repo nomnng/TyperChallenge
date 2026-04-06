@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState } from "react";
+import Button from "./ui/Button";
 
 interface TextSettingsProps {
 	text: string;
@@ -37,19 +38,13 @@ function TextSettings({onSave, onCancel, text}: TextSettingsProps) {
 					value={currentText}
 					onChange={(event) => setCurrentText(event.target.value)}
 				/>
-				<div className="flex-3 flex flex-row items-center justify-around">
-					<button
-						className="bg-gray-700 px-4 py-1 text-3xl border-1 border-gray-400 hover:bg-gray-600"
-						onClick={(event) => {setCurrentState(State.Saved)}}
-					>Save</button>
-					<button
-						className="bg-gray-700 px-4 py-1 text-3xl border-1 border-gray-400 hover:bg-gray-600"
-						onClick={(event) => {setCurrentState(State.Canceled)}}
-					>Cancel</button>
+				<div className="flex-3 flex flex-row items-center justify-around text-2xl">
+					<Button onClick={() => setCurrentState(State.Saved)}>Save</Button>
+					<Button onClick={() => setCurrentState(State.Canceled)}>Cancel</Button>
 				</div>
 			</div>
 		</div>
-	)
+	);
 }
 
 export default TextSettings;

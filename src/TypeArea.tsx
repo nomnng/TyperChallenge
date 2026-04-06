@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface TypeAreaProps {
 	text: string;
@@ -67,7 +67,7 @@ function TypeArea({text}: TypeAreaProps) {
 				"whitespace-pre-wrap text-zinc-500 border-l-2 " + (incorrectPart ? "border-red-400" : "border-emerald-400")
 			}>{textAfterCurrentWord}</span>
 		</div>
-	)
+	);
 }
 
 export default TypeArea;
