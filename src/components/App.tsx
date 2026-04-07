@@ -1,0 +1,55 @@
+import { useState, useRef } from "react";
+import TypeArea from "@/components/TypeArea";
+import TextSettings from "@/components/TextSettings";
+import Button from "@/components/ui/Button";
+import TypingStats from "@/components/TypingStats";
+import { TypingLogger } from "@/utils/TypingLogger";
+
+const defaultText = "The quick brown fox jumps over the lazy dog.";
+
+function App() {
+	const [settingsOpened, setSettingsOpened] = useState(false);
+	const [textToType, setTextToType] = useState(defaultText);
+	const [typeAreaResetId, setTypeAreaResetId] = useState(0);
+	const [isTypingInProgress, setIsTypingInProgress] = useState(false);
+	const loggerRef = useRef(new TypingLogger);
+
+	const onSettingsSaved = (text: string) => {
+		setSettingsOpened(false);
+		setTypeAreaResetId(prev => prev + 1);
+		setTextToType(text);
+		loggerRef.current.reset();
+	};
+
+	return (
+		<div className="flex flex-col h-screen">
+			<header className="flex bg-zinc-700 font-semibold p-3 justify-around items-center">
+				<div className="flex-1 text-4xl text-center">TYPER CHALLENGE</div>
+			</header>
+			<main className="flex flex-col justify-center mx-12 gap-3 my-12">
+				<div className="flex justify-right gap-12 text-2xl">
+					<Button onClick={() => {setSettingsOpened(true)}}>✎ EDIT</Button>
+					<Button onClick={() => {setTypeAreaResetId(prev => prev + 1)}}>↺ RESET</Button>
+					<Button onClick={() => {}}>↶ SHARE</Button>
+				</div>
+				<TypingStats loggerRef={loggerRef} timerRunning={isTypingInProgress} />
+				<div className="relative bg-zinc-800 border border-zinc-600 p-8 shadow-xl w-full">
+					<TypeArea
+						key={typeAreaResetId}
+						text={textToType}
+						loggerRef={loggerRef}
+						onTypingStarted={() => setIsTypingInProgress(true)}
+						onTypingFinished={() => setIsTypingInProgress(false)}
+					/>
+				</div>
+			</main>
+			{settingsOpened && <TextSettings
+				text={textToType}
+				onSave={onSettingsSaved}
+				onCancel={() => setSettingsOpened(false)}
+			/>}
+		</div>
+	)
+}
+
+export default App;

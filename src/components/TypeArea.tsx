@@ -1,20 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { TypingLogger } from "@/utils/TypingLogger";
 
 interface TypeAreaProps {
 	text: string;
+	loggerRef: React.RefObject<TypingLogger>;
+	onTypingFinished: () => void;
+	onTypingStarted: () => void;
 };
 
-function TypeArea({text}: TypeAreaProps) {
+function TypeArea({text, loggerRef, onTypingFinished, onTypingStarted}: TypeAreaProps) {
 	const [textAreaContent, setTextAreaContent] = useState("");
-	const [pos, setPos] = useState(0);
-	const [focus, setFocus] = useState(false);
+	const [currentWordPosition, setCurrentWordPosition] = useState(0);
+	const [hasFocus, setHasFocus] = useState(false);
+	const hasTypingStarted = useRef(false);
 
 	useEffect(() => {
-		setPos(0);
+		setCurrentWordPosition(0);
+		hasTypingStarted.current = false;
 	}, [text]);
 
-	const typedText = text.substr(0, pos);
-	const remainingText = text.substr(pos);
+	const typedText = text.substr(0, currentWordPosition);
+	const remainingText = text.substr(currentWordPosition);
+	const isFinished = remainingText === "";
 
 	const nextSpaceIndex = remainingText.indexOf(" ");
 	const nextNewLineIndex = remainingText.indexOf("\n");
@@ -38,28 +45,43 @@ function TypeArea({text}: TypeAreaProps) {
 	const textAfterCurrentWord = remainingText.substr(textAreaContent.length);
 
 	const cursorColor = incorrectPart ?
-		(focus ? "border-red-400" : "border-red-400/40") :
-		(focus ? "border-emerald-400" : "border-emerald-400/40");
+		(hasFocus ? "border-red-400" : "border-red-400/40") :
+		(hasFocus ? "border-emerald-400" : "border-emerald-400/40");
 
 	const onTextAreaChange = (event) => {
+		if (!hasTypingStarted.current) {
+			hasTypingStarted.current = true;
+			onTypingStarted();
+		}
+
+		if (isFinished) {
+			return;
+		}
+
 		const newValue = event.target.value;
-		const lastChar = newValue.charAt(newValue.length - 1);
 		if (newValue === wordToType) {
-			setPos((p) => p + wordToType.length);
+			const newPosition = currentWordPosition + wordToType.length;
+			setCurrentWordPosition(newPosition);
 			setTextAreaContent("");
+			if (newPosition >= text.length) {
+				onTypingFinished();
+			}
 		} else {
 			setTextAreaContent(newValue);
 		}
+
+		loggerRef.current.record(currentWordPosition + newValue.length);
 	};
 
 	return (
 		<div className="text-3xl">
 			<textarea
+				tabIndex={1}
 				className="absolute inset-0 w-full h-full opacity-0 resize-none z-10"
 				onChange={onTextAreaChange}
 				value={textAreaContent}
-				onFocus={() => setFocus(true)}
-				onBlur={() => setFocus(false)}
+				onFocus={() => setHasFocus(true)}
+				onBlur={() => setHasFocus(false)}
 				onMouseDown={(event) => {
 					if (document.activeElement === event.target) {
 						event.preventDefault();
