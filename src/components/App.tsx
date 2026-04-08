@@ -7,14 +7,21 @@ import { TypingLogger } from "@/utils/TypingLogger";
 
 const defaultText = "The quick brown fox jumps over the lazy dog.";
 
+interface TextCompletionStats {
+	typedWords: number;
+	totalWords: number;
+};
+
 function App() {
 	const [settingsOpened, setSettingsOpened] = useState(false);
 	const [textToType, setTextToType] = useState(defaultText);
 	const [typeAreaResetId, setTypeAreaResetId] = useState(0);
 	const [typeStatsResetId, setTypeStatsResetId] = useState(0);
 	const [isTypingInProgress, setIsTypingInProgress] = useState(false);
-	const [textCompletion, setTextCompletion] = useState(0);
-	const [wpm, setWpm] = useState(0);
+	const [wordStats, setWordStats] = useState<TextCompletionStats>({
+		typedWords: 0,
+		totalWords: 0,
+	});
 
 	const loggerRef = useRef(new TypingLogger);
 
@@ -25,8 +32,10 @@ function App() {
 		resetTypeStats();
 		resetTypeArea();
 		setIsTypingInProgress(false);
-		setTextCompletion(0);
-		setWpm(0);
+		setWordStats({
+			typedWords: 0,
+			totalWords: 0,
+		});
 	};
 
 	const onSettingsSaved = (text: string) => {
@@ -36,10 +45,11 @@ function App() {
 		onReset();
 	};
 
-	const onTypingProgress = (typedWords: number, wordsTotal: number) => {
-		setTextCompletion(typedWords / wordsTotal);
-		const minutesSinceStart = loggerRef.current.getTimeSinceStart() / (1000 * 60);
-		setWpm(typedWords / minutesSinceStart);
+	const onTypingProgress = (typedWords: number, totalWords: number) => {
+		setWordStats({
+			typedWords,
+			totalWords,
+		});
 	};
 
 	return (
@@ -58,8 +68,8 @@ function App() {
 						key={typeStatsResetId}
 						loggerRef={loggerRef}
 						timerRunning={isTypingInProgress}
-						completion={textCompletion}
-						wpm={wpm}
+						typedWords={wordStats.typedWords}
+						totalWords={wordStats.totalWords}
 					/>
 				</div>
 				<div className="relative bg-zinc-800 border border-zinc-600 p-8 shadow-xl w-full">

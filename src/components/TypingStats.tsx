@@ -4,11 +4,11 @@ import { TypingLogger } from "@/utils/TypingLogger";
 interface TypingStatsProps {
 	loggerRef: React.RefObject<TypingLogger>;
 	timerRunning: boolean;
-	completion: number;
-	wpm: number;
+	typedWords: number;
+	totalWords: number;
 };
 
-function TypingStats({loggerRef, timerRunning, completion, wpm}: TypingStatsProps) {
+function TypingStats({loggerRef, timerRunning, typedWords, totalWords}: TypingStatsProps) {
 	const [timeElapsed, setTimeElapsed] = useState(0);
 
 	useEffect(() => {
@@ -26,6 +26,10 @@ function TypingStats({loggerRef, timerRunning, completion, wpm}: TypingStatsProp
 			}
 		};
 	}, [timerRunning]);
+
+	const minutesSinceStart = timeElapsed / (1000 * 60);
+	const wpm = minutesSinceStart ? (typedWords / minutesSinceStart) : 0;
+	const completion = totalWords ? (typedWords / totalWords) : 0;
 
 	const formatTime = (ms: number) => {
 		const seconds = ms / 1000;

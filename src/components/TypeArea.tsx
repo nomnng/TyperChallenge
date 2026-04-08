@@ -6,7 +6,7 @@ interface TypeAreaProps {
 	text: string;
 	loggerRef: React.RefObject<TypingLogger>;
 	onTypingFinished: () => void;
-	onTypingProgress: (typedWords: number, wordsTotal: number) => void;
+	onTypingProgress: (typedWords: number, totalWords: number) => void;
 	onTypingStarted: () => void;
 };
 
