@@ -32,7 +32,7 @@ function TypingStats({loggerRef, timerRunning}: TypingStatsProps) {
 	};
 
 	return (
-		<div className="flex justify-between text-3xl py-3 px-9 border-1 border-zinc-600 bg-zinc-800">
+		<div className="flex justify-between">
 			<div>{formatTime(timeElapsed)}</div>
 			<div>15%</div>
 			<div>67 WPM</div>

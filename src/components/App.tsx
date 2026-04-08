@@ -11,14 +11,24 @@ function App() {
 	const [settingsOpened, setSettingsOpened] = useState(false);
 	const [textToType, setTextToType] = useState(defaultText);
 	const [typeAreaResetId, setTypeAreaResetId] = useState(0);
+	const [typeStatsResetId, setTypeStatsResetId] = useState(0);
 	const [isTypingInProgress, setIsTypingInProgress] = useState(false);
 	const loggerRef = useRef(new TypingLogger);
 
+	const resetTypeArea = () => setTypeAreaResetId(prev => prev + 1);
+	const resetTypeStats = () => setTypeStatsResetId(prev => prev + 1);
+
+	const onReset = () => {
+		resetTypeStats();
+		resetTypeArea();
+		setIsTypingInProgress(false);
+	};
+
 	const onSettingsSaved = (text: string) => {
 		setSettingsOpened(false);
-		setTypeAreaResetId(prev => prev + 1);
 		setTextToType(text);
 		loggerRef.current.reset();
+		onReset();
 	};
 
 	return (
@@ -28,11 +38,17 @@ function App() {
 			</header>
 			<main className="flex flex-col justify-center mx-12 gap-3 my-12">
 				<div className="flex justify-right gap-12 text-2xl">
-					<Button onClick={() => {setSettingsOpened(true)}}>✎ EDIT</Button>
-					<Button onClick={() => {setTypeAreaResetId(prev => prev + 1)}}>↺ RESET</Button>
+					<Button onClick={() => setSettingsOpened(true)}>✎ EDIT</Button>
+					<Button onClick={() => onReset()}>↺ RESET</Button>
 					<Button onClick={() => {}}>↶ SHARE</Button>
 				</div>
-				<TypingStats loggerRef={loggerRef} timerRunning={isTypingInProgress} />
+				<div className="text-3xl py-3 px-9 border-1 border-zinc-600 bg-zinc-800">
+					<TypingStats
+						key={typeStatsResetId}
+						loggerRef={loggerRef}
+						timerRunning={isTypingInProgress}
+					/>
+				</div>
 				<div className="relative bg-zinc-800 border border-zinc-600 p-8 shadow-xl w-full">
 					<TypeArea
 						key={typeAreaResetId}
