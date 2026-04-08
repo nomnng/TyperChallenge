@@ -1,5 +1,5 @@
 export interface LogEntry {
-	pos: number;
+	position: number;
 	timestamp: number;
 };
 
@@ -17,7 +17,7 @@ export class TypingLogger {
 		return performance.now() - this.startTime;
 	}
 
-	record(pos: number) {
+	recordPositionUpdate(position: number) {
 		if (!this.started) {
 			this.started = true;
 			this.startTime = performance.now();
@@ -25,7 +25,7 @@ export class TypingLogger {
 
 		const entry: LogEntry = {
 			timestamp: this.getTimeSinceStart(),
-			pos,
+			position,
 		};
 		this.history.push(entry);
 	}

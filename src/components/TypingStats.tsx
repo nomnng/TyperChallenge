@@ -4,9 +4,11 @@ import { TypingLogger } from "@/utils/TypingLogger";
 interface TypingStatsProps {
 	loggerRef: React.RefObject<TypingLogger>;
 	timerRunning: boolean;
+	completion: number;
+	wpm: number;
 };
 
-function TypingStats({loggerRef, timerRunning}: TypingStatsProps) {
+function TypingStats({loggerRef, timerRunning, completion, wpm}: TypingStatsProps) {
 	const [timeElapsed, setTimeElapsed] = useState(0);
 
 	useEffect(() => {
@@ -35,8 +37,8 @@ function TypingStats({loggerRef, timerRunning}: TypingStatsProps) {
 	return (
 		<div className="flex justify-between">
 			<div>{formatTime(timeElapsed)}</div>
-			<div>15%</div>
-			<div>67 WPM</div>
+			<div className={completion === 1 ? "text-green-500" : ""}>{(completion * 100).toFixed(2)}%</div>
+			<div>{Math.floor(wpm)} WPM</div>
 		</div>
 	);
 }

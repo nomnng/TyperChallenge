@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import type { ChangeEvent } from "react";
 import { TypingLogger } from "@/utils/TypingLogger";
 
@@ -6,12 +6,23 @@ interface TypeAreaProps {
 	text: string;
 	loggerRef: React.RefObject<TypingLogger>;
 	onTypingFinished: () => void;
+	onTypingProgress: (typedWords: number, wordsTotal: number) => void;
 	onTypingStarted: () => void;
 };
 
-function TypeArea({text, loggerRef, onTypingFinished, onTypingStarted}: TypeAreaProps) {
+const findNextEndOfWord = (str: string, start: number) => {
+	for (let i = start; str.length > i; i++) {
+		if (str[i] === ' ' || str[i] === '\n') {
+			return i;
+		}
+	}
+	return -1;
+};
+
+function TypeArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingFinished}: TypeAreaProps) {
 	const [textAreaContent, setTextAreaContent] = useState("");
 	const [currentWordPosition, setCurrentWordPosition] = useState(0);
+	const [currentWordIndex, setCurrentWordIndex] = useState(0);
 	const [hasFocus, setHasFocus] = useState(false);
 	const hasTypingStarted = useRef(false);
 
@@ -20,16 +31,31 @@ function TypeArea({text, loggerRef, onTypingFinished, onTypingStarted}: TypeArea
 		hasTypingStarted.current = false;
 	}, [text]);
 
+	const wordsArray = useMemo(() => {
+		const words = [];
+
+		for (let i = 0; i < text.length;) {
+			const endWordIndex = findNextEndOfWord(text, i);
+			let word;
+			if (endWordIndex < 0) {
+				word = text.substr(i, text.length - i);
+			} else {
+				const wordLength = endWordIndex - i + 1;
+				word = text.substr(i, wordLength);
+			}
+
+			words.push(word);
+			i += word.length;
+		}
+
+		return words;
+	}, [text]);
+
 	const typedText = text.substr(0, currentWordPosition);
 	const remainingText = text.substr(currentWordPosition);
 	const isFinished = remainingText === "";
 
-	const nextSpaceIndex = remainingText.indexOf(" ");
-	const nextNewLineIndex = remainingText.indexOf("\n");
-	const wordEndIndex = nextSpaceIndex < 0 ?
-		(nextNewLineIndex < 0 ? (remainingText.length) : nextNewLineIndex) : nextSpaceIndex;
-
-	const wordToType = remainingText.substr(0, wordEndIndex + 1);
+	const wordToType = wordsArray[currentWordIndex] ?? "";
 
 	let correctPart = "";
 	let incorrectPart = "";
@@ -63,7 +89,9 @@ function TypeArea({text, loggerRef, onTypingFinished, onTypingStarted}: TypeArea
 		if (newValue === wordToType) {
 			const newPosition = currentWordPosition + wordToType.length;
 			setCurrentWordPosition(newPosition);
+			setCurrentWordIndex((i) => i + 1);
 			setTextAreaContent("");
+			onTypingProgress(currentWordIndex + 1, wordsArray.length);
 			if (newPosition >= text.length) {
 				onTypingFinished();
 			}
@@ -71,7 +99,7 @@ function TypeArea({text, loggerRef, onTypingFinished, onTypingStarted}: TypeArea
 			setTextAreaContent(newValue);
 		}
 
-		loggerRef.current.record(currentWordPosition + newValue.length);
+		loggerRef.current.recordPositionUpdate(currentWordPosition + newValue.length);
 	};
 
 	return (

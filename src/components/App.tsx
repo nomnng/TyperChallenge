@@ -13,6 +13,9 @@ function App() {
 	const [typeAreaResetId, setTypeAreaResetId] = useState(0);
 	const [typeStatsResetId, setTypeStatsResetId] = useState(0);
 	const [isTypingInProgress, setIsTypingInProgress] = useState(false);
+	const [textCompletion, setTextCompletion] = useState(0);
+	const [wpm, setWpm] = useState(0);
+
 	const loggerRef = useRef(new TypingLogger);
 
 	const resetTypeArea = () => setTypeAreaResetId(prev => prev + 1);
@@ -22,6 +25,8 @@ function App() {
 		resetTypeStats();
 		resetTypeArea();
 		setIsTypingInProgress(false);
+		setTextCompletion(0);
+		setWpm(0);
 	};
 
 	const onSettingsSaved = (text: string) => {
@@ -29,6 +34,12 @@ function App() {
 		setTextToType(text);
 		loggerRef.current.reset();
 		onReset();
+	};
+
+	const onTypingProgress = (typedWords: number, wordsTotal: number) => {
+		setTextCompletion(typedWords / wordsTotal);
+		const minutesSinceStart = loggerRef.current.getTimeSinceStart() / (1000 * 60);
+		setWpm(typedWords / minutesSinceStart);
 	};
 
 	return (
@@ -47,6 +58,8 @@ function App() {
 						key={typeStatsResetId}
 						loggerRef={loggerRef}
 						timerRunning={isTypingInProgress}
+						completion={textCompletion}
+						wpm={wpm}
 					/>
 				</div>
 				<div className="relative bg-zinc-800 border border-zinc-600 p-8 shadow-xl w-full">
@@ -55,6 +68,7 @@ function App() {
 						text={textToType}
 						loggerRef={loggerRef}
 						onTypingStarted={() => setIsTypingInProgress(true)}
+						onTypingProgress={onTypingProgress}
 						onTypingFinished={() => setIsTypingInProgress(false)}
 					/>
 				</div>
