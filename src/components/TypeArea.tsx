@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import type { ChangeEvent } from "react";
 import { TypingLogger } from "@/utils/TypingLogger";
 
 interface TypeAreaProps {
@@ -48,7 +49,7 @@ function TypeArea({text, loggerRef, onTypingFinished, onTypingStarted}: TypeArea
 		(hasFocus ? "border-red-400" : "border-red-400/40") :
 		(hasFocus ? "border-emerald-400" : "border-emerald-400/40");
 
-	const onTextAreaChange = (event) => {
+	const onTextAreaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
 		if (!hasTypingStarted.current) {
 			hasTypingStarted.current = true;
 			onTypingStarted();

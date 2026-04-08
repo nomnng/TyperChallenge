@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { TypingLogger } from "@/utils/TypingLogger";
 
 interface TypingStatsProps {
 	loggerRef: React.RefObject<TypingLogger>;

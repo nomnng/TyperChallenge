@@ -6,7 +6,7 @@ export interface LogEntry {
 export class TypingLogger {
 	private history: LogEntry[] = [];
 	private startTime: number = 0;
-	private started: bool = false;
+	private started: boolean = false;
 
 	reset() {
 		this.started = false;

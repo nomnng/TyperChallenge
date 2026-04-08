@@ -3,7 +3,7 @@ import Button from "@/components/ui/Button";
 
 interface TextSettingsProps {
 	text: string;
-	onSave: (string) => void;
+	onSave: (text: string) => void;
 	onCancel: () => void;
 };
 

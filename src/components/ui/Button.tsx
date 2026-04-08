@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 
 interface ButtonProps extends React.ComponentPropsWithoutRef<"button"> {
 	// NOTE: might be needed in the future
