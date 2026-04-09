@@ -33,16 +33,18 @@ function TypingStats({loggerRef, timerRunning, typedWords, totalWords}: TypingSt
 
 	const formatTime = (ms: number) => {
 		const seconds = ms / 1000;
-		const mins = Math.floor(seconds / 60);
-		const secs = Math.floor(seconds % 60);
-		return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+		const mStr = Math.floor(seconds / 60).toString().padStart(2, '0');
+		const sStr = Math.floor(seconds % 60).toString().padStart(2, '0');
+		return [mStr, sStr].join(":");
 	};
 
+	const completionTextColor = completion === 1 ? "text-green-500" : "";
+
 	return (
-		<div className="flex justify-between">
-			<div>{formatTime(timeElapsed)}</div>
-			<div className={completion === 1 ? "text-green-500" : ""}>{(completion * 100).toFixed(2)}%</div>
-			<div>{Math.floor(wpm)} WPM</div>
+		<div className="grid grid-cols-3 w-full">
+			<div className="justify-self-start">{formatTime(timeElapsed)}</div>
+			<div className={"justify-self-center " + completionTextColor}>{(completion * 100).toFixed(2)}%</div>
+			<div className="justify-self-end">{Math.floor(wpm)} WPM</div>
 		</div>
 	);
 }
