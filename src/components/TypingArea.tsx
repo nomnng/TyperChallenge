@@ -2,28 +2,22 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import type { ChangeEvent } from "react";
 import { TypingLogger } from "@/utils/TypingLogger";
 import { splitIntoWords } from "@/utils/text";
+import { TypingStatus } from "@/components/types";
 
 interface TypingAreaProps {
 	text: string;
 	loggerRef: React.RefObject<TypingLogger>;
-	onTypingFinished: () => void;
 	onTypingProgress: (typedWords: number, totalWords: number) => void;
-	onTypingStarted: () => void;
+	typingStatus: TypingStatus;
+	setTypingStatus: () => void;
 };
 
-enum TypingStatus {
-	Ready,
-	InProgress,
-	Finished,
-};
-
-function TypingArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingFinished}: TypingAreaProps) {
+function TypingArea({text, loggerRef, onTypingProgress, typingStatus, setTypingStatus}: TypingAreaProps) {
 	const [textAreaContent, setTextAreaContent] = useState("");
 	const [currentWordPosition, setCurrentWordPosition] = useState(0);
 	const [currentWordIndex, setCurrentWordIndex] = useState(0);
 	const [hasFocus, setHasFocus] = useState(false);
 	const [opponentPosition, setOpponentPosition] = useState(null);
-	const [typingStatus, setTypingStatus] = useState(TypingStatus.Ready);
 
 	useEffect(() => {
 		if (typingStatus === TypingStatus.Ready || !loggerRef.current.hasOpponentHistory()) {
@@ -78,10 +72,7 @@ function TypingArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypin
 	const onTextAreaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
 		if (typingStatus === TypingStatus.Ready) {
 			setTypingStatus(TypingStatus.InProgress);
-			onTypingStarted();
-		}
-
-		if (typingStatus === TypingStatus.Finished) {
+		} else if (typingStatus === TypingStatus.Finished) {
 			return;
 		}
 
@@ -94,7 +85,6 @@ function TypingArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypin
 			onTypingProgress(currentWordIndex + 1, wordsArray.length);
 			if (newPosition >= text.length) {
 				setTypingStatus(TypingStatus.Finished);
-				onTypingFinished();
 			}
 		} else {
 			setTextAreaContent(newValue);
@@ -122,7 +112,7 @@ function TypingArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypin
 			{opponentPosition !== null &&
 				<span className="absolute whitespace-pre-wrap">
 					<span className="text-transparent">{text.substr(0, opponentPosition)}</span>
-					<span className="border-r-2 border-red-700"></span>
+					<span className="border-r-2 border-red-600"></span>
 				</span>
 			}
 			<span className="whitespace-pre-wrap text-zinc-200">{typedText}</span>

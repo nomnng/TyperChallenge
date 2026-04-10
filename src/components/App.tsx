@@ -4,6 +4,7 @@ import TextSettings from "@/components/TextSettings";
 import Button from "@/components/ui/Button";
 import TypingStats from "@/components/TypingStats";
 import { TypingLogger } from "@/utils/TypingLogger";
+import { TypingStatus } from "@/components/types";
 
 const defaultText = "The quick brown fox jumps over the lazy dog.";
 
@@ -17,7 +18,8 @@ function App() {
 	const [textToType, setTextToType] = useState(defaultText);
 	const [typingAreaResetId, setTypingAreaResetId] = useState(0);
 	const [typeStatsResetId, setTypeStatsResetId] = useState(0);
-	const [isTypingInProgress, setIsTypingInProgress] = useState(false);
+	const [typingStatus, setTypingStatus] = useState(TypingStatus.Ready);
+
 	const [wordStats, setWordStats] = useState<TextCompletionStats>({
 		typedWords: 0,
 		totalWords: 0,
@@ -25,13 +27,16 @@ function App() {
 
 	const loggerRef = useRef(new TypingLogger);
 
+	const isTypingInProgress = typingStatus === TypingStatus.InProgress;
+	const isTypingFinished = typingStatus === TypingStatus.Finished;
+
 	const resetTypingArea = () => setTypingAreaResetId(prev => prev + 1);
 	const resetTypeStats = () => setTypeStatsResetId(prev => prev + 1);
 
 	const onReset = () => {
 		resetTypeStats();
 		resetTypingArea();
-		setIsTypingInProgress(false);
+		setTypingStatus(TypingStatus.Ready);
 		setWordStats({
 			typedWords: 0,
 			totalWords: 0,
@@ -54,10 +59,7 @@ function App() {
 
 	const loadHistoryAsOpponent = () => {
 		loggerRef.current.loadHistoryAsOpponent();
-
 	};
-
-	const historyAvailable = !isTypingInProgress && loggerRef.current.hasHistory();
 
 	return (
 		<div className="flex flex-col h-screen">
@@ -69,7 +71,7 @@ function App() {
 					<Button onClick={() => setSettingsOpened(true)}>✎ EDIT</Button>
 					<Button onClick={() => onReset()}>↺ RESET</Button>
 					<Button onClick={() => {}}>↶ SHARE</Button>
-					{historyAvailable &&
+					{isTypingFinished &&
 						<Button onClick={() => loadHistoryAsOpponent()}>LOAD AS OPPONENT</Button>
 					}
 				</div>
@@ -87,9 +89,9 @@ function App() {
 						key={typingAreaResetId}
 						text={textToType}
 						loggerRef={loggerRef}
-						onTypingStarted={() => setIsTypingInProgress(true)}
 						onTypingProgress={onTypingProgress}
-						onTypingFinished={() => setIsTypingInProgress(false)}
+						setTypingStatus={setTypingStatus}
+						typingStatus={typingStatus}
 					/>
 				</div>
 			</main>
