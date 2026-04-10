@@ -36,12 +36,12 @@ function App() {
 			typedWords: 0,
 			totalWords: 0,
 		});
+		loggerRef.current.reset();
 	};
 
 	const onSettingsSaved = (text: string) => {
 		setSettingsOpened(false);
 		setTextToType(text);
-		loggerRef.current.reset();
 		onReset();
 	};
 
@@ -51,6 +51,13 @@ function App() {
 			totalWords,
 		});
 	};
+
+	const loadHistoryAsOpponent = () => {
+		loggerRef.current.loadHistoryAsOpponent();
+
+	};
+
+	const historyAvailable = !isTypingInProgress && loggerRef.current.hasHistory();
 
 	return (
 		<div className="flex flex-col h-screen">
@@ -62,6 +69,9 @@ function App() {
 					<Button onClick={() => setSettingsOpened(true)}>✎ EDIT</Button>
 					<Button onClick={() => onReset()}>↺ RESET</Button>
 					<Button onClick={() => {}}>↶ SHARE</Button>
+					{historyAvailable &&
+						<Button onClick={() => loadHistoryAsOpponent()}>LOAD AS OPPONENT</Button>
+					}
 				</div>
 				<div className="text-3xl py-3 px-9 border-1 border-zinc-600 bg-zinc-800">
 					<TypingStats

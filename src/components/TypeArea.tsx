@@ -10,6 +10,12 @@ interface TypeAreaProps {
 	onTypingStarted: () => void;
 };
 
+enum TypingStatus {
+	Ready,
+	InProgress,
+	Finished,
+};
+
 const findNextEndOfWord = (str: string, start: number) => {
 	for (let i = start; str.length > i; i++) {
 		if (str[i] === ' ' || str[i] === '\n') {
@@ -24,12 +30,23 @@ function TypeArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingF
 	const [currentWordPosition, setCurrentWordPosition] = useState(0);
 	const [currentWordIndex, setCurrentWordIndex] = useState(0);
 	const [hasFocus, setHasFocus] = useState(false);
-	const hasTypingStarted = useRef(false);
+	const [opponentPosition, setOpponentPosition] = useState(null);
+	const [typingStatus, setTypingStatus] = useState(TypingStatus.Ready);
 
 	useEffect(() => {
-		setCurrentWordPosition(0);
-		hasTypingStarted.current = false;
-	}, [text]);
+		const interval = setInterval(() => {
+			if (loggerRef.current.hasOpponentHistory() && typingStatus === TypingStatus.InProgress) {
+				const nextPosition = loggerRef.current.getNextOpponentPosition();
+				if (nextPosition !== null) {
+					setOpponentPosition(nextPosition);
+				}
+			}
+		}, 50);
+
+		return () => {
+			clearInterval(interval);
+		};
+	}, [typingStatus]);
 
 	const wordsArray = useMemo(() => {
 		const words = [];
@@ -76,12 +93,13 @@ function TypeArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingF
 		(hasFocus ? "border-emerald-400" : "border-emerald-400/40");
 
 	const onTextAreaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-		if (!hasTypingStarted.current) {
-			hasTypingStarted.current = true;
+		if (typingStatus === TypingStatus.Ready) {
+			console.log("READY");
+			setTypingStatus(TypingStatus.InProgress);
 			onTypingStarted();
 		}
 
-		if (isFinished) {
+		if (typingStatus === TypingStatus.Finished) {
 			return;
 		}
 
@@ -93,6 +111,7 @@ function TypeArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingF
 			setTextAreaContent("");
 			onTypingProgress(currentWordIndex + 1, wordsArray.length);
 			if (newPosition >= text.length) {
+				setTypingStatus(TypingStatus.Finished);
 				onTypingFinished();
 			}
 		} else {
@@ -103,7 +122,7 @@ function TypeArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingF
 	};
 
 	return (
-		<div className="text-3xl">
+		<div className="relative text-3xl">
 			<textarea
 				tabIndex={1}
 				className="absolute inset-0 w-full h-full opacity-0 resize-none z-10"
@@ -118,6 +137,12 @@ function TypeArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingF
 				}}
 			/>
 
+			{opponentPosition !== null &&
+				<span className="absolute whitespace-pre-wrap">
+					<span className="text-transparent">{text.substr(0, opponentPosition)}</span>
+					<span className="border-r-2 border-red-500 opacity-50"></span>
+				</span>
+			}
 			<span className="whitespace-pre-wrap text-zinc-200">{typedText}</span>
 			<span className="whitespace-pre-wrap text-zinc-200">{correctPart}</span>
 			{incorrectPart && <span className="whitespace-pre-wrap text-red-400">{incorrectPart}</span>}
