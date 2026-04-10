@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import TypeArea from "@/components/TypeArea";
+import TypingArea from "@/components/TypingArea";
 import TextSettings from "@/components/TextSettings";
 import Button from "@/components/ui/Button";
 import TypingStats from "@/components/TypingStats";
@@ -15,7 +15,7 @@ interface TextCompletionStats {
 function App() {
 	const [settingsOpened, setSettingsOpened] = useState(false);
 	const [textToType, setTextToType] = useState(defaultText);
-	const [typeAreaResetId, setTypeAreaResetId] = useState(0);
+	const [typingAreaResetId, setTypingAreaResetId] = useState(0);
 	const [typeStatsResetId, setTypeStatsResetId] = useState(0);
 	const [isTypingInProgress, setIsTypingInProgress] = useState(false);
 	const [wordStats, setWordStats] = useState<TextCompletionStats>({
@@ -25,12 +25,12 @@ function App() {
 
 	const loggerRef = useRef(new TypingLogger);
 
-	const resetTypeArea = () => setTypeAreaResetId(prev => prev + 1);
+	const resetTypingArea = () => setTypingAreaResetId(prev => prev + 1);
 	const resetTypeStats = () => setTypeStatsResetId(prev => prev + 1);
 
 	const onReset = () => {
 		resetTypeStats();
-		resetTypeArea();
+		resetTypingArea();
 		setIsTypingInProgress(false);
 		setWordStats({
 			typedWords: 0,
@@ -83,8 +83,8 @@ function App() {
 					/>
 				</div>
 				<div className="relative bg-zinc-800 border border-zinc-600 p-8 shadow-xl w-full">
-					<TypeArea
-						key={typeAreaResetId}
+					<TypingArea
+						key={typingAreaResetId}
 						text={textToType}
 						loggerRef={loggerRef}
 						onTypingStarted={() => setIsTypingInProgress(true)}

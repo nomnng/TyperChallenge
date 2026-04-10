@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import type { ChangeEvent } from "react";
 import { TypingLogger } from "@/utils/TypingLogger";
+import { splitIntoWords } from "@/utils/text";
 
-interface TypeAreaProps {
+interface TypingAreaProps {
 	text: string;
 	loggerRef: React.RefObject<TypingLogger>;
 	onTypingFinished: () => void;
@@ -16,16 +17,7 @@ enum TypingStatus {
 	Finished,
 };
 
-const findNextEndOfWord = (str: string, start: number) => {
-	for (let i = start; str.length > i; i++) {
-		if (str[i] === ' ' || str[i] === '\n') {
-			return i;
-		}
-	}
-	return -1;
-};
-
-function TypeArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingFinished}: TypeAreaProps) {
+function TypingArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingFinished}: TypingAreaProps) {
 	const [textAreaContent, setTextAreaContent] = useState("");
 	const [currentWordPosition, setCurrentWordPosition] = useState(0);
 	const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -49,23 +41,7 @@ function TypeArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingF
 	}, [typingStatus]);
 
 	const wordsArray = useMemo(() => {
-		const words = [];
-
-		for (let i = 0; i < text.length;) {
-			const endWordIndex = findNextEndOfWord(text, i);
-			let word;
-			if (endWordIndex < 0) {
-				word = text.substr(i, text.length - i);
-			} else {
-				const wordLength = endWordIndex - i + 1;
-				word = text.substr(i, wordLength);
-			}
-
-			words.push(word);
-			i += word.length;
-		}
-
-		return words;
+		return splitIntoWords(text);
 	}, [text]);
 
 	const typedText = text.substr(0, currentWordPosition);
@@ -153,4 +129,4 @@ function TypeArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypingF
 	);
 }
 
-export default TypeArea;
+export default TypingArea;
