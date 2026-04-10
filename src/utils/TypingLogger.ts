@@ -42,6 +42,10 @@ export class TypingLogger {
 	    return lastValidPosition;
 	}
 
+	hasRemainingOpponentPositions() {
+		return this.opponentHistory.length > this.opponentHistoryIndex;
+	}
+
 	getTimeSinceStart() {
 		return performance.now() - this.startTime;
 	}

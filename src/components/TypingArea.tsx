@@ -26,12 +26,19 @@ function TypingArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypin
 	const [typingStatus, setTypingStatus] = useState(TypingStatus.Ready);
 
 	useEffect(() => {
+		if (typingStatus === TypingStatus.Ready || !loggerRef.current.hasOpponentHistory()) {
+			return;
+		}
+
 		const interval = setInterval(() => {
-			if (loggerRef.current.hasOpponentHistory() && typingStatus === TypingStatus.InProgress) {
-				const nextPosition = loggerRef.current.getNextOpponentPosition();
-				if (nextPosition !== null) {
-					setOpponentPosition(nextPosition);
-				}
+			if (!loggerRef.current.hasRemainingOpponentPositions()) {
+				clearInterval(interval);
+				return;
+			}
+
+			const nextPosition = loggerRef.current.getNextOpponentPosition();
+			if (nextPosition !== null) {
+				setOpponentPosition(nextPosition);
 			}
 		}, 50);
 
@@ -70,7 +77,6 @@ function TypingArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypin
 
 	const onTextAreaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
 		if (typingStatus === TypingStatus.Ready) {
-			console.log("READY");
 			setTypingStatus(TypingStatus.InProgress);
 			onTypingStarted();
 		}
@@ -116,7 +122,7 @@ function TypingArea({text, loggerRef, onTypingStarted, onTypingProgress, onTypin
 			{opponentPosition !== null &&
 				<span className="absolute whitespace-pre-wrap">
 					<span className="text-transparent">{text.substr(0, opponentPosition)}</span>
-					<span className="border-r-2 border-red-500 opacity-50"></span>
+					<span className="border-r-2 border-red-700"></span>
 				</span>
 			}
 			<span className="whitespace-pre-wrap text-zinc-200">{typedText}</span>
