@@ -1,65 +1,84 @@
+import { splitIntoWords, type TextData } from "@/utils/text";
+
 export interface LogEntry {
 	position: number;
 	timestamp: number;
+	correctWords: number;
 };
 
 export class TypingLogger {
 	private history: LogEntry[] = [];
-	private opponentHistory: LogEntry[] = [];
-	private opponentHistoryIndex: number = 0;
+	private historyIndex: number = 0;
 	private startTime: number = 0;
-	private started: boolean = false;
+	private textData: TextData;
 
-	hasOpponentHistory() {
-		return this.opponentHistory.length > 0;
+	constructor(textData: TextData) {
+		this.textData = textData;
 	}
 
-	hasHistory() {
-		return this.history.length > 0;
+	start() {
+		this.historyIndex = 0;
+		this.startTime = performance.now();
 	}
 
-	reset() {
-		this.started = false;
+	resetHistory() {
 		this.history = [];
-		this.opponentHistoryIndex = 0;
 	}
 
-	loadHistoryAsOpponent() {
-		this.opponentHistory = [...this.history];
+	getCurrentEntry() {
+		if ((this.historyIndex + 1) === this.history.length) {
+			return this.history[this.historyIndex];
+		}
+
+		let lastValidEntry = this.history[this.historyIndex];
+		let nextEntry = this.history[this.historyIndex + 1];
+
+		while (nextEntry && nextEntry.timestamp < this.getTimeSinceStart()) {
+			this.historyIndex++;
+			lastValidEntry = nextEntry;
+			nextEntry = this.history[this.historyIndex + 1];
+		}
+
+		return lastValidEntry;
 	}
 
-	getNextOpponentPosition() {
-	    let lastValidPosition = null;
-
-	    while (
-	        this.opponentHistory[this.opponentHistoryIndex] &&
-	        this.opponentHistory[this.opponentHistoryIndex].timestamp < this.getTimeSinceStart()
-	    ) {
-	        lastValidPosition = this.opponentHistory[this.opponentHistoryIndex].position;
-	        this.opponentHistoryIndex++;
-	    }
-
-	    return lastValidPosition;
+	hasMoreEntries() {
+		return this.history.length > (this.historyIndex + 1);
 	}
 
-	hasRemainingOpponentPositions() {
-		return this.opponentHistory.length > this.opponentHistoryIndex;
+	getCurrentPosition() {
+		const entry = this.getCurrentEntry();
+		return entry?.position ?? null;
+	}
+
+	getCurrentCorrectWordCount() {
+		const entry = this.getCurrentEntry();
+		return entry?.correctWords ?? null;
+	}
+
+	getTotalWordCount() {
+		return this.textData.words.length;
 	}
 
 	getTimeSinceStart() {
+		if (!this.startTime) {
+			return 0;
+		}
 		return performance.now() - this.startTime;
 	}
 
-	recordPositionUpdate(position: number) {
-		if (!this.started) {
-			this.started = true;
-			this.startTime = performance.now();
-		}
-
+	recordPositionUpdate(position: number, correctWords: number) {
 		const entry: LogEntry = {
 			timestamp: this.getTimeSinceStart(),
 			position,
+			correctWords,
 		};
 		this.history.push(entry);
+	}
+
+	duplicate() {
+		const newObject = new TypingLogger(this.textData);
+		newObject.history = [...this.history];
+		return newObject;
 	}
 }

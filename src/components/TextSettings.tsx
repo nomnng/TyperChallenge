@@ -1,8 +1,9 @@
 import { useState } from "react";
 import Button from "@/components/ui/Button";
+import { type TextData } from "@/utils/text";
 
 interface TextSettingsProps {
-	text: string;
+	textData: TextData;
 	onSave: (text: string) => void;
 	onCancel: () => void;
 };
@@ -13,7 +14,8 @@ enum State {
 	Canceled,
 };
 
-function TextSettings({onSave, onCancel, text}: TextSettingsProps) {
+function TextSettings({textData, onSave, onCancel}: TextSettingsProps) {
+	const {text} = textData;
 	const [currentText, setCurrentText] = useState(text);
 	const [currentState, setCurrentState] = useState(State.Opened);
 

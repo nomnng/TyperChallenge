@@ -1,3 +1,8 @@
+export interface TextData {
+	text: string;
+	words: string[];
+};
+
 export const findNextEndOfWord = (str: string, start: number) => {
 	for (let i = start; str.length > i; i++) {
 		if (str[i] === ' ' || str[i] === '\n') {
@@ -25,4 +30,11 @@ export const splitIntoWords = (text: string) => {
 	}
 
 	return words;
+};
+
+export const createTextData = (text: string): TextData => {
+	return {
+		text,
+		words: splitIntoWords(text),
+	};
 };

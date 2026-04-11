@@ -1,31 +1,37 @@
 import { useState, useEffect } from "react";
 import { TypingLogger } from "@/utils/TypingLogger";
+import { TypingStatus } from "@/components/types";
 
 interface TypingStatsProps {
-	loggerRef: React.RefObject<TypingLogger>;
-	timerRunning: boolean;
-	typedWords: number;
-	totalWords: number;
+	logger: TypingLogger;
+	typingStatus: TypingStatus;
 };
 
-function TypingStats({loggerRef, timerRunning, typedWords, totalWords}: TypingStatsProps) {
+function TypingStats({logger, typingStatus}: TypingStatsProps) {
 	const [timeElapsed, setTimeElapsed] = useState(0);
+	const [typedWords, setTypedWords] = useState(0);
+	const [totalWords, setTotalWords] = useState(0);
+
+	const updateStats = () => {
+		setTimeElapsed(logger.getTimeSinceStart());
+		setTypedWords(logger.getCurrentCorrectWordCount());
+		setTotalWords(logger.getTotalWordCount());
+	};
 
 	useEffect(() => {
-		let interval: ReturnType<typeof setInterval> | null = null;
-
-		if (timerRunning) {
-			interval = setInterval(() => {
-				setTimeElapsed(loggerRef.current.getTimeSinceStart());
-			}, 1000);
+		if (typingStatus !== TypingStatus.InProgress) {
+			return;
 		}
 
+		let interval: ReturnType<typeof setInterval> = setInterval(() => {
+			updateStats();
+		}, 500);
+
 		return () => {
-			if (interval) {
-				clearInterval(interval);
-			}
+			clearInterval(interval);
+			updateStats();
 		};
-	}, [timerRunning]);
+	}, [typingStatus]);
 
 	const minutesSinceStart = timeElapsed / (1000 * 60);
 	const wpm = minutesSinceStart ? (typedWords / minutesSinceStart) : 0;

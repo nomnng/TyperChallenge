@@ -3,34 +3,37 @@ import type { ChangeEvent } from "react";
 import { TypingLogger } from "@/utils/TypingLogger";
 import { splitIntoWords } from "@/utils/text";
 import { TypingStatus } from "@/components/types";
+import { type TextData } from "@/utils/text";
 
 interface TypingAreaProps {
-	text: string;
-	loggerRef: React.RefObject<TypingLogger>;
-	onTypingProgress: (typedWords: number, totalWords: number) => void;
+	textData: TextData;
+	logger: TypingLogger;
+	opponentLogger: TypingLogger;
 	typingStatus: TypingStatus;
 	setTypingStatus: () => void;
 };
 
-function TypingArea({text, loggerRef, onTypingProgress, typingStatus, setTypingStatus}: TypingAreaProps) {
+function TypingArea({textData, logger, opponentLogger, typingStatus, setTypingStatus}: TypingAreaProps) {
 	const [textAreaContent, setTextAreaContent] = useState("");
 	const [currentWordPosition, setCurrentWordPosition] = useState(0);
 	const [currentWordIndex, setCurrentWordIndex] = useState(0);
 	const [hasFocus, setHasFocus] = useState(false);
 	const [opponentPosition, setOpponentPosition] = useState(null);
 
+	const {text, words} = textData;
+
 	useEffect(() => {
-		if (typingStatus === TypingStatus.Ready || !loggerRef.current.hasOpponentHistory()) {
+		if (typingStatus === TypingStatus.Ready || !opponentLogger) {
 			return;
 		}
 
 		const interval = setInterval(() => {
-			if (!loggerRef.current.hasRemainingOpponentPositions()) {
+			if (!opponentLogger.hasMoreEntries()) {
 				clearInterval(interval);
 				return;
 			}
 
-			const nextPosition = loggerRef.current.getNextOpponentPosition();
+			const nextPosition = opponentLogger.getCurrentPosition();
 			if (nextPosition !== null) {
 				setOpponentPosition(nextPosition);
 			}
@@ -41,15 +44,11 @@ function TypingArea({text, loggerRef, onTypingProgress, typingStatus, setTypingS
 		};
 	}, [typingStatus]);
 
-	const wordsArray = useMemo(() => {
-		return splitIntoWords(text);
-	}, [text]);
-
 	const typedText = text.substr(0, currentWordPosition);
 	const remainingText = text.substr(currentWordPosition);
 	const isFinished = remainingText === "";
 
-	const wordToType = wordsArray[currentWordIndex] ?? "";
+	const wordToType = words[currentWordIndex] ?? "";
 
 	let correctPart = "";
 	let incorrectPart = "";
@@ -72,6 +71,8 @@ function TypingArea({text, loggerRef, onTypingProgress, typingStatus, setTypingS
 	const onTextAreaChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
 		if (typingStatus === TypingStatus.Ready) {
 			setTypingStatus(TypingStatus.InProgress);
+			logger.start();
+			opponentLogger?.start();
 		} else if (typingStatus === TypingStatus.Finished) {
 			return;
 		}
@@ -82,15 +83,14 @@ function TypingArea({text, loggerRef, onTypingProgress, typingStatus, setTypingS
 			setCurrentWordPosition(newPosition);
 			setCurrentWordIndex((i) => i + 1);
 			setTextAreaContent("");
-			onTypingProgress(currentWordIndex + 1, wordsArray.length);
 			if (newPosition >= text.length) {
 				setTypingStatus(TypingStatus.Finished);
 			}
+			logger.recordPositionUpdate(currentWordPosition + newValue.length, currentWordIndex + 1);
 		} else {
 			setTextAreaContent(newValue);
+			logger.recordPositionUpdate(currentWordPosition + newValue.length, currentWordIndex);
 		}
-
-		loggerRef.current.recordPositionUpdate(currentWordPosition + newValue.length);
 	};
 
 	return (

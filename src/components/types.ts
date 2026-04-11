@@ -3,3 +3,8 @@ export enum TypingStatus {
 	InProgress,
 	Finished,
 };
+
+export interface TextData {
+	text: string;
+	words: string[];
+};

@@ -1,31 +1,25 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import TypingArea from "@/components/TypingArea";
 import TextSettings from "@/components/TextSettings";
 import Button from "@/components/ui/Button";
 import TypingStats from "@/components/TypingStats";
 import { TypingLogger } from "@/utils/TypingLogger";
 import { TypingStatus } from "@/components/types";
+import { createTextData, type TextData } from "@/utils/text";
 
 const defaultText = "The quick brown fox jumps over the lazy dog.";
 
-interface TextCompletionStats {
-	typedWords: number;
-	totalWords: number;
-};
-
 function App() {
 	const [settingsOpened, setSettingsOpened] = useState(false);
-	const [textToType, setTextToType] = useState(defaultText);
 	const [typingAreaResetId, setTypingAreaResetId] = useState(0);
 	const [typeStatsResetId, setTypeStatsResetId] = useState(0);
 	const [typingStatus, setTypingStatus] = useState(TypingStatus.Ready);
+	const [textData, setTextData] = useState<TextData>(createTextData(defaultText));
+	const [opponentLogger, setOpponentLogger] = useState(null);
 
-	const [wordStats, setWordStats] = useState<TextCompletionStats>({
-		typedWords: 0,
-		totalWords: 0,
-	});
-
-	const loggerRef = useRef(new TypingLogger);
+	const logger = useMemo(() => {
+		return new TypingLogger(textData);
+	}, [textData]);
 
 	const isTypingInProgress = typingStatus === TypingStatus.InProgress;
 	const isTypingFinished = typingStatus === TypingStatus.Finished;
@@ -37,28 +31,18 @@ function App() {
 		resetTypeStats();
 		resetTypingArea();
 		setTypingStatus(TypingStatus.Ready);
-		setWordStats({
-			typedWords: 0,
-			totalWords: 0,
-		});
-		loggerRef.current.reset();
+		logger.resetHistory();
 	};
 
 	const onSettingsSaved = (text: string) => {
 		setSettingsOpened(false);
-		setTextToType(text);
+		setTextData(createTextData(text));
 		onReset();
 	};
 
-	const onTypingProgress = (typedWords: number, totalWords: number) => {
-		setWordStats({
-			typedWords,
-			totalWords,
-		});
-	};
-
 	const loadHistoryAsOpponent = () => {
-		loggerRef.current.loadHistoryAsOpponent();
+		setOpponentLogger(logger.duplicate());
+		onReset();
 	};
 
 	return (
@@ -76,27 +60,28 @@ function App() {
 					}
 				</div>
 				<div className="text-3xl py-3 px-9 border-1 border-zinc-600 bg-zinc-800">
+					<div className="border-b border-zinc-600 pb-4 mb-4">
+						Opponent: 68 WPM
+					</div>
 					<TypingStats
 						key={typeStatsResetId}
-						loggerRef={loggerRef}
-						timerRunning={isTypingInProgress}
-						typedWords={wordStats.typedWords}
-						totalWords={wordStats.totalWords}
+						logger={logger}
+						typingStatus={typingStatus}
 					/>
 				</div>
 				<div className="relative bg-zinc-800 border border-zinc-600 p-8 shadow-xl w-full">
 					<TypingArea
 						key={typingAreaResetId}
-						text={textToType}
-						loggerRef={loggerRef}
-						onTypingProgress={onTypingProgress}
+						textData={textData}
+						logger={logger}
+						opponentLogger={opponentLogger}
 						setTypingStatus={setTypingStatus}
 						typingStatus={typingStatus}
 					/>
 				</div>
 			</main>
 			{settingsOpened && <TextSettings
-				text={textToType}
+				textData={textData}
 				onSave={onSettingsSaved}
 				onCancel={() => setSettingsOpened(false)}
 			/>}
