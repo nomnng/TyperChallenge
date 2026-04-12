@@ -35,12 +35,15 @@ function App() {
 	};
 
 	const onSettingsSaved = (text: string) => {
+		if (text !== textData.text) {
+			setOpponentLogger(null);
+			setTextData(createTextData(text));
+		}
 		setSettingsOpened(false);
-		setTextData(createTextData(text));
 		onReset();
 	};
 
-	const loadHistoryAsOpponent = () => {
+	const loadAsOpponent = () => {
 		setOpponentLogger(logger.duplicate());
 		onReset();
 	};
@@ -56,17 +59,28 @@ function App() {
 					<Button onClick={() => onReset()}>↺ RESET</Button>
 					<Button onClick={() => {}}>↶ SHARE</Button>
 					{isTypingFinished &&
-						<Button onClick={() => loadHistoryAsOpponent()}>LOAD AS OPPONENT</Button>
+						<Button onClick={() => loadAsOpponent()}>LOAD AS OPPONENT</Button>
 					}
 				</div>
 				<div className="text-3xl py-3 px-9 border-1 border-zinc-600 bg-zinc-800">
-					<div className="border-b border-zinc-600 pb-4 mb-4">
-						Opponent: 68 WPM
-					</div>
+					{opponentLogger &&
+						<div className="border-b border-zinc-600 pb-2 mb-2">
+							<TypingStats
+								key={typeStatsResetId + 1}
+								logger={opponentLogger}
+								typingStatus={typingStatus}
+								name={<span className="text-red-500">Opponent</span>}
+								stopOnFinish={false}
+							/>
+						</div>
+					}
+
 					<TypingStats
 						key={typeStatsResetId}
 						logger={logger}
 						typingStatus={typingStatus}
+						name={<span className="text-emerald-400">You</span>}
+						stopOnFinish={true}
 					/>
 				</div>
 				<div className="relative bg-zinc-800 border border-zinc-600 p-8 shadow-xl w-full">

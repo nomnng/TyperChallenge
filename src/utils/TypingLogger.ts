@@ -56,6 +56,11 @@ export class TypingLogger {
 		return entry?.correctWords ?? null;
 	}
 
+	getCurrentTimestamp() {
+		const entry = this.getCurrentEntry();
+		return entry?.timestamp ?? null;
+	}
+
 	getTotalWordCount() {
 		return this.textData.words.length;
 	}
