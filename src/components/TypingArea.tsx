@@ -28,14 +28,14 @@ function TypingArea({textData, logger, opponentLogger, typingStatus, setTypingSt
 		}
 
 		const interval = setInterval(() => {
-			if (!opponentLogger.hasMoreEntries()) {
-				clearInterval(interval);
-				return;
-			}
-
 			const nextPosition = opponentLogger.getCurrentPosition();
 			if (nextPosition !== null) {
 				setOpponentPosition(nextPosition);
+			}
+
+			if (!opponentLogger.hasMoreEntries()) {
+				clearInterval(interval);
+				return;
 			}
 		}, 50);
 

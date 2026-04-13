@@ -1,17 +1,19 @@
 import { useState, useEffect } from "react";
 import { TypingLogger } from "@/utils/TypingLogger";
 import { TypingStatus } from "@/components/types";
+import Button, { ButtonSize } from "@/components/ui/Button";
 
 interface TypingStatsProps {
 	logger: TypingLogger;
 	typingStatus: TypingStatus;
 	stopOnFinish: boolean;
 	name: string;
+	onLoad: () => void;
 };
 
 const UPDATES_PER_SECOND = 3;
 
-function TypingStats({logger, typingStatus, stopOnFinish, name}: TypingStatsProps) {
+function TypingStats({logger, typingStatus, stopOnFinish, name, onLoad}: TypingStatsProps) {
 	const [timeElapsed, setTimeElapsed] = useState(0);
 	const [typedWords, setTypedWords] = useState(0);
 	const [totalWords, setTotalWords] = useState(0);
@@ -74,11 +76,16 @@ function TypingStats({logger, typingStatus, stopOnFinish, name}: TypingStatsProp
 	const completionTextColor = completion === 1 ? "text-green-500" : "";
 
 	return (
-		<div className="grid grid-cols-4 w-full">
+		<div className="grid grid-cols-5 items-center w-full h-10">
 			<div className=	"justify-self-start">{name}</div>
 			<div className="justify-self-start">{formatTime(timeElapsed, completion === 1)}</div>
-			<div className={"justify-self-center " + completionTextColor}>{(completion * 100).toFixed(2)}%</div>
-			<div className="justify-self-end">{Math.floor(wpm)} WPM</div>
+			<div className={"justify-self-start " + completionTextColor}>{(completion * 100).toFixed(2)}%</div>
+			<div className="justify-self-start">{Math.floor(wpm)} WPM</div>
+			<div className="justify-self-end space-x-6">
+				{onLoad &&
+					<Button size={ButtonSize.Small} onClick={onLoad}>🡅 LOAD</Button>
+				}
+			</div>
 		</div>
 	);
 }
