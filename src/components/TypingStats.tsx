@@ -7,13 +7,14 @@ interface TypingStatsProps {
 	logger: TypingLogger;
 	typingStatus: TypingStatus;
 	stopOnFinish: boolean;
-	name: string;
-	onLoad: () => void;
+	name: React.ReactNode;
+	onLoad?: () => void;
+	onShare?: () => void;
 };
 
 const UPDATES_PER_SECOND = 3;
 
-function TypingStats({logger, typingStatus, stopOnFinish, name, onLoad}: TypingStatsProps) {
+function TypingStats({logger, typingStatus, stopOnFinish, name, onLoad, onShare}: TypingStatsProps) {
 	const [timeElapsed, setTimeElapsed] = useState(0);
 	const [typedWords, setTypedWords] = useState(0);
 	const [totalWords, setTotalWords] = useState(0);
@@ -84,6 +85,9 @@ function TypingStats({logger, typingStatus, stopOnFinish, name, onLoad}: TypingS
 			<div className="justify-self-end space-x-6">
 				{onLoad &&
 					<Button size={ButtonSize.Small} onClick={onLoad}>🡅 LOAD</Button>
+				}
+				{onShare &&
+					<Button size={ButtonSize.Small} onClick={onShare}>↶ SHARE</Button>
 				}
 			</div>
 		</div>

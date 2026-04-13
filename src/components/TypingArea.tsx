@@ -1,16 +1,15 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import { TypingLogger } from "@/utils/TypingLogger";
-import { splitIntoWords } from "@/utils/text";
 import { TypingStatus } from "@/components/types";
 import { type TextData } from "@/utils/text";
 
 interface TypingAreaProps {
 	textData: TextData;
 	logger: TypingLogger;
-	opponentLogger: TypingLogger;
+	opponentLogger: TypingLogger | null;
 	typingStatus: TypingStatus;
-	setTypingStatus: () => void;
+	setTypingStatus: React.Dispatch<React.SetStateAction<TypingStatus>>;
 };
 
 function TypingArea({textData, logger, opponentLogger, typingStatus, setTypingStatus}: TypingAreaProps) {
@@ -18,7 +17,7 @@ function TypingArea({textData, logger, opponentLogger, typingStatus, setTypingSt
 	const [currentWordPosition, setCurrentWordPosition] = useState(0);
 	const [currentWordIndex, setCurrentWordIndex] = useState(0);
 	const [hasFocus, setHasFocus] = useState(false);
-	const [opponentPosition, setOpponentPosition] = useState(null);
+	const [opponentPosition, setOpponentPosition] = useState<number | null>(null);
 
 	const {text, words} = textData;
 
@@ -46,7 +45,6 @@ function TypingArea({textData, logger, opponentLogger, typingStatus, setTypingSt
 
 	const typedText = text.substr(0, currentWordPosition);
 	const remainingText = text.substr(currentWordPosition);
-	const isFinished = remainingText === "";
 
 	const wordToType = words[currentWordIndex] ?? "";
 

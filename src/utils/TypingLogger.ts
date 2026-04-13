@@ -1,4 +1,4 @@
-import { splitIntoWords, type TextData } from "@/utils/text";
+import { type TextData } from "@/utils/text";
 
 export interface LogEntry {
 	position: number;

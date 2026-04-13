@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useMemo } from "react";
 import TypingArea from "@/components/TypingArea";
 import TextSettings from "@/components/TextSettings";
 import Button from "@/components/ui/Button";
@@ -15,13 +15,12 @@ function App() {
 	const [typeStatsResetId, setTypeStatsResetId] = useState(0);
 	const [typingStatus, setTypingStatus] = useState(TypingStatus.Ready);
 	const [textData, setTextData] = useState<TextData>(createTextData(defaultText));
-	const [opponentLogger, setOpponentLogger] = useState(null);
+	const [opponentLogger, setOpponentLogger] = useState<TypingLogger | null>(null);
 
 	const logger = useMemo(() => {
 		return new TypingLogger(textData);
 	}, [textData]);
 
-	const isTypingInProgress = typingStatus === TypingStatus.InProgress;
 	const isTypingFinished = typingStatus === TypingStatus.Finished;
 
 	const resetTypingArea = () => setTypingAreaResetId(prev => prev + 1);
@@ -43,9 +42,13 @@ function App() {
 		onReset();
 	};
 
-	const loadAsOpponent = () => {
+	const onLoad = () => {
 		setOpponentLogger(logger.duplicate());
 		onReset();
+	};
+
+	const onShare = () => {
+
 	};
 
 	return (
@@ -57,7 +60,6 @@ function App() {
 				<div className="flex justify-right gap-12 text-2xl">
 					<Button onClick={() => setSettingsOpened(true)}>✎ EDIT</Button>
 					<Button onClick={() => onReset()}>↺ RESET</Button>
-					<Button onClick={() => {}}>↶ SHARE</Button>
 				</div>
 				<div className="text-3xl py-3 px-9 border-1 border-zinc-600 bg-zinc-800">
 					{opponentLogger &&
@@ -68,6 +70,7 @@ function App() {
 								typingStatus={typingStatus}
 								name={<span className="text-red-500">Opponent</span>}
 								stopOnFinish={false}
+								onShare={isTypingFinished ? onShare : undefined}
 							/>
 						</div>
 					}
@@ -78,7 +81,8 @@ function App() {
 						typingStatus={typingStatus}
 						name={<span className="text-emerald-400">You</span>}
 						stopOnFinish={true}
-						onLoad={isTypingFinished && loadAsOpponent}
+						onLoad={isTypingFinished ? onLoad : undefined}
+						onShare={isTypingFinished ? onShare : undefined}
 					/>
 				</div>
 				<div className="relative bg-zinc-800 border border-zinc-600 p-8 shadow-xl w-full">
