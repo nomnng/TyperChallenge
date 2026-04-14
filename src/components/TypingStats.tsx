@@ -9,7 +9,7 @@ interface TypingStatsProps {
 	stopOnFinish: boolean;
 	name: React.ReactNode;
 	onLoad?: () => void;
-	onShare?: () => void;
+	onShare?: (logger: TypingLogger) => void;
 };
 
 const UPDATES_PER_SECOND = 3;
@@ -87,7 +87,7 @@ function TypingStats({logger, typingStatus, stopOnFinish, name, onLoad, onShare}
 					<Button size={ButtonSize.Small} onClick={onLoad}>🡅 LOAD</Button>
 				}
 				{onShare &&
-					<Button size={ButtonSize.Small} onClick={onShare}>↶ SHARE</Button>
+					<Button size={ButtonSize.Small} onClick={() => onShare(logger)}>↶ SHARE</Button>
 				}
 			</div>
 		</div>

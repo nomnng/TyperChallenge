@@ -1,21 +1,29 @@
 import { useState, useMemo } from "react";
 import TypingArea from "@/components/TypingArea";
-import TextSettings from "@/components/TextSettings";
+import TextSettingsModal from "@/components/modals/TextSettingsModal";
+import ShareModal from "@/components/modals/ShareModal";
 import Button from "@/components/ui/Button";
 import TypingStats from "@/components/TypingStats";
 import { TypingLogger } from "@/utils/TypingLogger";
 import { TypingStatus } from "@/components/types";
 import { createTextData, type TextData } from "@/utils/text";
+import { tryImportFromUrl, type PlaybackData } from "@/utils/export";
 
+const playbackData: PlaybackData | undefined = await tryImportFromUrl();
 const defaultText = "The quick brown fox jumps over the lazy dog.";
 
 function App() {
 	const [settingsOpened, setSettingsOpened] = useState(false);
+	const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 	const [typingAreaResetId, setTypingAreaResetId] = useState(0);
 	const [typeStatsResetId, setTypeStatsResetId] = useState(0);
 	const [typingStatus, setTypingStatus] = useState(TypingStatus.Ready);
-	const [textData, setTextData] = useState<TextData>(createTextData(defaultText));
-	const [opponentLogger, setOpponentLogger] = useState<TypingLogger | null>(null);
+	const [textData, setTextData] = useState<TextData>(
+		createTextData(playbackData ? playbackData.text : defaultText)
+	);
+	const [opponentLogger, setOpponentLogger] = useState<TypingLogger | null>(
+		playbackData ? new TypingLogger(textData, playbackData.history) : null
+	);
 
 	const logger = useMemo(() => {
 		return new TypingLogger(textData);
@@ -47,8 +55,8 @@ function App() {
 		onReset();
 	};
 
-	const onShare = () => {
-
+	const onShare = (logger: TypingLogger) => {
+		setIsShareModalOpen(true);
 	};
 
 	return (
@@ -96,10 +104,15 @@ function App() {
 					/>
 				</div>
 			</main>
-			{settingsOpened && <TextSettings
+			{settingsOpened && <TextSettingsModal
 				textData={textData}
 				onSave={onSettingsSaved}
 				onCancel={() => setSettingsOpened(false)}
+			/>}
+			{isShareModalOpen && <ShareModal
+				onClose={() => setIsShareModalOpen(false)}
+				textData={textData}
+				logger={logger} // TODO: pass logger from onShare callback
 			/>}
 		</div>
 	)

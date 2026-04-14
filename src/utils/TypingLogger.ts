@@ -12,8 +12,13 @@ export class TypingLogger {
 	private startTime: number = 0;
 	private textData: TextData;
 
-	constructor(textData: TextData) {
+	constructor(textData: TextData, history?: LogEntry[]) {
 		this.textData = textData;
+		this.history = history ?? [];
+	}
+
+	getHistory() {
+		return [...this.history];
 	}
 
 	start() {

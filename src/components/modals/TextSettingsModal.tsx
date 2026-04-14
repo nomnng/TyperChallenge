@@ -2,32 +2,32 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import { type TextData } from "@/utils/text";
 
-interface TextSettingsProps {
+interface TextSettingsModalProps {
 	textData: TextData;
 	onSave: (text: string) => void;
 	onCancel: () => void;
 };
 
-enum State {
+enum ModalState {
 	Opened,
 	Saved,
 	Canceled,
 };
 
-function TextSettings({textData, onSave, onCancel}: TextSettingsProps) {
+function TextSettingsModal({textData, onSave, onCancel}: TextSettingsModalProps) {
 	const {text} = textData;
 	const [currentText, setCurrentText] = useState(text);
-	const [currentState, setCurrentState] = useState(State.Opened);
+	const [modalState, setModalState] = useState(ModalState.Opened);
 
 	const handleAnimationEnd = () => {
-		if (currentState === State.Saved) {
+		if (modalState === ModalState.Saved) {
 			onSave(currentText);
-		} else if (currentState === State.Canceled) {
+		} else if (modalState === ModalState.Canceled) {
 			onCancel();
 		}
 	};
 
-	const currentAnimation = currentState === State.Opened ? "animate-fade-in" : "animate-fade-out";
+	const currentAnimation = modalState === ModalState.Opened ? "animate-fade-in" : "animate-fade-out";
 
 	return (
 		<div className={"fixed inset-0 flex items-center justify-center w-full h-full z-100 " + currentAnimation}
@@ -41,12 +41,12 @@ function TextSettings({textData, onSave, onCancel}: TextSettingsProps) {
 					onChange={(event) => setCurrentText(event.target.value)}
 				/>
 				<div className="flex-3 flex flex-row items-center justify-around text-2xl">
-					<Button onClick={() => setCurrentState(State.Saved)}>Save</Button>
-					<Button onClick={() => setCurrentState(State.Canceled)}>Cancel</Button>
+					<Button onClick={() => setModalState(ModalState.Saved)}>Save</Button>
+					<Button onClick={() => setModalState(ModalState.Canceled)}>Cancel</Button>
 				</div>
 			</div>
 		</div>
 	);
 }
 
-export default TextSettings;
+export default TextSettingsModal;
