@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Button, { ButtonSize } from "@/components/ui/Button";
 import { type TextData } from "@/utils/text";
 import { TypingLogger } from "@/utils/TypingLogger";

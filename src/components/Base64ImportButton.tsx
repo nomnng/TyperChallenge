@@ -1,7 +1,6 @@
 import { useState } from "react";
-import Button, { ButtonSize } from "@/components/ui/Button";
-import { type TextData } from "@/utils/text";
-import { TypingLogger } from "@/utils/TypingLogger";
+import type { ChangeEvent } from "react";
+import Button from "@/components/ui/Button";
 import { tryImportFromBase64, type PlaybackData } from "@/utils/export";
 
 interface Base64ImportButtonProps {
@@ -11,6 +10,7 @@ interface Base64ImportButtonProps {
 function Base64ImportButton({onImport}: Base64ImportButtonProps) {
 	const [isInputVisible, setIsInputVisible] = useState(false);
 	const [inputValue, setInputValue] = useState("");
+	const [hasError, setHasError] = useState(false);
 
 	const onClick = () => {
 		if (isInputVisible) {
@@ -20,11 +20,13 @@ function Base64ImportButton({onImport}: Base64ImportButtonProps) {
 					onImport(playbackData);
 					setIsInputVisible(false);
 					setInputValue("");
+					setHasError(false);
 				} else {
-					// TODO: error handling
+					setHasError(true);
 				}
 			} else {
 				setIsInputVisible(false);
+				setHasError(false);
 			}
 		} else {
 			setIsInputVisible(true);
@@ -40,7 +42,7 @@ function Base64ImportButton({onImport}: Base64ImportButtonProps) {
 			<Button onClick={onClick}>IMPORT BASE64</Button>
 			{isInputVisible &&
 				<input
-					className="bg-gray-500 border-1 border-gray-200 outline-none p-2"
+					className={`bg-gray-500 border-1 ${hasError ? "border-red-500" : "border-gray-200"} outline-none p-2`}
 					placeholder="Paste BASE64 here..."
 					value={inputValue}
 					onChange={onChange}
