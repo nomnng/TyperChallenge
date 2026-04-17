@@ -27,9 +27,32 @@ export const extendsClassPrepareExportData = (url: string) => {
 	};
 };
 
+export const base64EncodePlaybackData = (textData: TextData, logger: TypingLogger) => {
+	const playbackData = preparePlaybackDataForExport(textData, logger);
+	const toEncode = {
+		type: ExportType.Base64,
+		playbackData,
+	};
+	return btoa(JSON.stringify(toEncode));
+};
+
 export const tryImportFromUrl = async () => {
 	const urlData = getDataFromUrl();
 	if (urlData?.type === ExportType.ExtendsClass) {
 		return await extendsClassLoad(urlData.url);
+	}
+};
+
+export const tryImportFromBase64 = (b64: string) => {
+	try {
+		const str = atob(b64);
+		const json = JSON.parse(str);
+
+		if (json?.type === ExportType.Base64) {
+			return json?.playbackData;
+		}
+	} catch (error) {
+		console.error("Base64 import error:", error);
+		return null;
 	}
 };

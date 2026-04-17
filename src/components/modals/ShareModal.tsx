@@ -2,6 +2,7 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import { type TextData } from "@/utils/text";
 import ExtendsClassExport from "@/components/export/ExtendsClassExport"
+import Base64Export from "@/components/export/Base64Export"
 import { TypingLogger } from "@/utils/TypingLogger";
 
 interface ShareModalProps {
@@ -37,6 +38,8 @@ function ShareModal({textData, logger, onClose}: ShareModalProps) {
 		let ExportComponent = null;
 		if (newValue === EXPORT_METHODS.ExtendsClass) {
 			ExportComponent = ExtendsClassExport;
+		} else if (newValue === EXPORT_METHODS.Base64) {
+			ExportComponent = Base64Export;
 		}
 
 		if (ExportComponent) {

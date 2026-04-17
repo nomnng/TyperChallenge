@@ -4,6 +4,7 @@ import TextSettingsModal from "@/components/modals/TextSettingsModal";
 import ShareModal from "@/components/modals/ShareModal";
 import Button from "@/components/ui/Button";
 import TypingStats from "@/components/TypingStats";
+import Base64ImportButton from "@/components/Base64ImportButton";
 import { TypingLogger } from "@/utils/TypingLogger";
 import { TypingStatus } from "@/components/types";
 import { createTextData, type TextData } from "@/utils/text";
@@ -61,6 +62,13 @@ function App() {
 		setSharedLogger(loggerToShare);
 	};
 
+	const onBase64Import = (newPlaybackData: PlaybackData) => {
+		const newTextData = createTextData(newPlaybackData.text);
+		setTextData(newTextData);
+		setOpponentLogger(new TypingLogger(newTextData, newPlaybackData.history));
+		onReset();
+	};
+
 	return (
 		<div className="flex flex-col h-screen">
 			<header className="flex bg-zinc-700 font-semibold p-3 justify-around items-center">
@@ -70,6 +78,7 @@ function App() {
 				<div className="flex justify-right gap-12 text-2xl">
 					<Button onClick={() => setSettingsOpened(true)}>✎ EDIT</Button>
 					<Button onClick={() => onReset()}>↺ RESET</Button>
+					<Base64ImportButton onImport={onBase64Import}/>
 				</div>
 				<div className="text-3xl py-3 px-9 border-1 border-zinc-600 bg-zinc-800">
 					{opponentLogger &&
