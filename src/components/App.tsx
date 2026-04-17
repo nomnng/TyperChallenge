@@ -21,13 +21,14 @@ function App() {
 	const [textData, setTextData] = useState<TextData>(
 		createTextData(playbackData ? playbackData.text : defaultText)
 	);
+
 	const [opponentLogger, setOpponentLogger] = useState<TypingLogger | null>(
 		playbackData ? new TypingLogger(textData, playbackData.history) : null
 	);
-
 	const logger = useMemo(() => {
 		return new TypingLogger(textData);
 	}, [textData]);
+	const [sharedLogger, setSharedLogger] = useState<TypingLogger | null>(null);
 
 	const isTypingFinished = typingStatus === TypingStatus.Finished;
 
@@ -55,8 +56,9 @@ function App() {
 		onReset();
 	};
 
-	const onShare = (logger: TypingLogger) => {
+	const onShare = (loggerToShare: TypingLogger) => {
 		setIsShareModalOpen(true);
+		setSharedLogger(loggerToShare);
 	};
 
 	return (
@@ -109,10 +111,10 @@ function App() {
 				onSave={onSettingsSaved}
 				onCancel={() => setSettingsOpened(false)}
 			/>}
-			{isShareModalOpen && <ShareModal
+			{isShareModalOpen && sharedLogger && <ShareModal
 				onClose={() => setIsShareModalOpen(false)}
 				textData={textData}
-				logger={logger} // TODO: pass logger from onShare callback
+				logger={sharedLogger}
 			/>}
 		</div>
 	)

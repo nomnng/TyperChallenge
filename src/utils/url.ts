@@ -13,7 +13,7 @@ export const getDataFromUrl = () => {
 	}
 };
 
-export const createUrlWithData = (data) => {
+export const createUrlWithData = (data: Record<string, unknown>) => {
 	const str = JSON.stringify(data);
 	const b64 = btoa(str);
 	return `${window.location.origin}/?${DATA_QUERY_PARAM}=${b64}`;
